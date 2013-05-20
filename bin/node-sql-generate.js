@@ -5,7 +5,7 @@ var fs = require('fs'),
 	path = require('path'),
 	async = require('async'),
 	util = require('util'),
-	version = '0.0.1',
+	version = require('../package.json').version,
 	programName = path.basename(process.argv[1]);
 
 require('colors');
