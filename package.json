@@ -15,10 +15,6 @@
 		"node-sql-generate": "bin/node-sql-generate.js"
 	},
 
-	"directories": {
-		"lib": "src"
-	},
-
 	"dependencies": {
 		"mysql": "2.0.0-alpha8",
 		"pg": "1.1.1",
