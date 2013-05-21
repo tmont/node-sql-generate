@@ -261,11 +261,12 @@ module.exports = function(options, callback) {
 
 				log('debug', '  Found ' + columnNames.length + ' columns');
 
-				var args = [];
+				var args = [],
+					fullName = (options.schema || options.database) + '.' + tableName;
 
 				if (!options.omitComments) {
 					args.push('/**');
-					args.push(' * SQL definition for ' + options.schema + '.' + tableName);
+					args.push(' * SQL definition for ' + fullName);
 					args.push(' */');
 				}
 
