@@ -5,6 +5,40 @@ var should = require('should'),
 	generate = require('../');
 
 describe('generator', function() {
+	describe('argument validation', function() {
+		it('should explode if dsn is missing', function(done) {
+			generate({}, function(err) {
+				err.should.be.instanceOf(Error);
+				err.should.have.property('message', 'options.dsn is required');
+				done();
+			});
+		});
+
+		it('should explode if dialect is missing', function(done) {
+			generate({ dsn: 'foo!' }, function(err) {
+				err.should.be.instanceOf(Error);
+				err.should.have.property('message', 'options.dialect is required');
+				done();
+			});
+		});
+
+		it('should explode if dialect is unsupported', function(done) {
+			generate({ dsn: 'foo!', dialect: 'bar' }, function(err) {
+				err.should.be.instanceOf(Error);
+				err.should.have.property('message', 'options.dialect must be either "mysql" or "pg"');
+				done();
+			});
+		});
+
+		it('should explode if database is missing and not part of the DSN', function(done) {
+			generate({ dsn: 'mysql://foo:bar@localhost/' }, function(err) {
+				err.should.be.instanceOf(Error);
+				err.should.have.property('message', 'options.database is required if it is not part of the DSN');
+				done();
+			});
+		});
+	});
+
 	var database = 'node_sql_generate',
 		dialects = {
 			mysql: 'mysql://root:password@localhost/',
@@ -83,7 +117,7 @@ describe('generator', function() {
 				}
 			});
 
-			it('with no dialect specified', function(done) {
+			it('with dialect embedded in dsn', function(done) {
 				generate({ dsn: dsn, schema: database }, function(err, stats) {
 					should.not.exist(err);
 					var expected = getExpected('defaults');
