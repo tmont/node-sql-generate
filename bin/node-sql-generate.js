@@ -21,8 +21,8 @@ program
 	.option('-v, --verbose', 'Print debugging information', false)
 	.on('--help', function() {
 		console.log('Example DSN:');
-		console.log('  PostgreSQL: "tcp://postgres:1234@localhost/postgres"');
-		console.log('       MySQL: "mysql://user:password@host/schema"');
+		console.log('  PostgreSQL: "postgres://user:password@host/database"');
+		console.log('       MySQL: "mysql://user:password@host/database"');
 	})
 	.parse(process.argv);
 
