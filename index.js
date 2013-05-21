@@ -1,6 +1,6 @@
 var fs = require('fs'),
 	util = require('util'),
-	info = require('../package.json'),
+	info = require('./package.json'),
 	async = require('async');
 
 var supportedDialects = {

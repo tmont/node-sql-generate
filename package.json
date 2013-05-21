@@ -18,8 +18,6 @@
 		"lib": "src"
 	},
 
-	"main": "src/generator.js",
-
 	"dependencies": {
 		"mysql": "2.0.0-alpha8",
 		"pg": "1.1.1",
