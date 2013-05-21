@@ -4,7 +4,7 @@
 [![NPM version](https://badge.fury.io/js/node-sql-generate.png)](http://badge.fury.io/js/node-sql-generate)
 
 This library is a command line tool/API for automatically generating
-definitions usable by the [node-sql](https://github.com/brianc/node-sql).
+definitions usable by the [node-sql](https://github.com/brianc/node-sql) library.
 It inspects your database and generates JavaScript.
 
 Currently there is support for MySQL and Postgres.
