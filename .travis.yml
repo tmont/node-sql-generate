@@ -5,4 +5,4 @@ before_script:
   - ./scripts/create_test_users.sh
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq mysql-server postgresql libpq-dev
+  - sudo apt-get install -qq -y mysql-server postgresql libpq-dev
