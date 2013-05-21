@@ -1,1 +1,1 @@
-drop owned by root;
+drop owned by sqlgenerate;

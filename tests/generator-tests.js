@@ -41,8 +41,8 @@ describe('generator', function() {
 
 	var database = 'node_sql_generate',
 		dialects = {
-			mysql: 'mysql://root:password@localhost/',
-			pg: 'postgres://root:password@localhost/postgres'
+			mysql: 'mysql://sqlgenerate:password@localhost/',
+			pg: 'postgres://sqlgenerate:password@localhost/postgres'
 		},
 		getExpected = function(name) {
 			return fs.readFileSync(path.join(__dirname, 'expected', name + '.js'), 'utf8');
