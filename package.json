@@ -1,5 +1,5 @@
 {
-	"name": "node-sql-generate",
+	"name": "sql-generate",
 	"version": "0.1.0",
 	"preferGlobal": true,
 	"description": "Automatic generation of SQL definitions for use by the sql module",
