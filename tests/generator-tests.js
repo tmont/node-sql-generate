@@ -5,10 +5,10 @@ var should = require('should'),
 	generate = require('../');
 
 describe('generator', function() {
-	var schema = 'node_sql_generate',
+	var database = 'node_sql_generate',
 		dialects = {
-			mysql: 'mysql://root:password@localhost/'
-			//pg: 'tcp://root:password@localhost/' + schema
+			mysql: 'mysql://root:password@localhost/',
+			pg: 'postgres://root:password@localhost/postgres'
 		},
 		getExpected = function(name) {
 			return fs.readFileSync(path.join(__dirname, 'files', 'expected', name + '.js'), 'utf8');
@@ -23,15 +23,22 @@ describe('generator', function() {
 	for (var dialect in dialects) {
 		var dsn = dialects[dialect],
 			db = require(dialect),
-			//outputFile = path.join(__dirname, 'tmp', 'output.js'),
 			defaults = {
 				dsn: dsn,
-				dialect: dialect,
-				schema: schema
+				dialect: dialect
 			},
 			client;
 
 		describe('for ' + dialect, function() {
+			switch (dialect) {
+				case 'mysql':
+					defaults.database = database;
+					break;
+				case 'pg':
+					defaults.database = 'postgres';
+					defaults.schema = database;
+					break;
+			}
 
 			before(function(done) {
 				function runScripts(err) {

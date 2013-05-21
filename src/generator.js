@@ -29,12 +29,18 @@ var supportedDialects = {
 module.exports = function(options, callback) {
 	options = options || {};
 
-	var requiredProperties = [ 'dialect', 'dsn', 'schema' ];
-	for (var i = 0; i < requiredProperties.length; i++) {
-		if (!options[requiredProperties[i]]) {
-			callback && callback(new Error('options.' + requiredProperties[i] + ' is required'));
+	if (!options.dsn) {
+		callback && callback(new Error('options.dsn is required'));
+		return;
+	}
+	if (!options.dialect) {
+		var match = /^(mysql|postgres)/i.exec(options.dsn);
+		if (!match) {
+			callback && callback(new Error('options.dialect is required'));
 			return;
 		}
+
+		options.dialect = match[1].toLowerCase() === 'mysql' ? 'mysql' : 'pg';
 	}
 
 	options.dialect = options.dialect.toLowerCase();
@@ -96,18 +102,20 @@ module.exports = function(options, callback) {
 				query = 'SELECT\n' +
 					'TABLE_NAME `name`\n' +
 					'FROM information_schema.TABLES\n' +
-					'WHERE TABLE_SCHEMA=?';
+					'WHERE TABLE_SCHEMA=?\n' +
+					'ORDER BY TABLE_NAME ASC';
 				break;
 			case 'pg':
 				query = 'SELECT\n' +
 					'table_name "name"\n' +
 					'FROM information_schema.tables\n' +
-					'WHERE table_schema = \'public\'\n' +
-					'AND table_catalog = $1';
+					'WHERE table_schema = $2\n' +
+					'AND table_catalog = $1\n' +
+					'ORDER BY table_name ASC';
 				break;
 		}
 
-		runQuery(query, [ options.schema ], function(err, rows) {
+		runQuery(query, [ options.database, options.schema ], function(err, rows) {
 			if (err) {
 				callback(err);
 				return;
@@ -134,14 +142,14 @@ module.exports = function(options, callback) {
 				query = 'SELECT\n' +
 					'column_name "name" \n' +
 					'FROM information_schema.columns\n' +
-					'WHERE table_schema=\'public\'\n' +
+					'WHERE table_schema=$3\n' +
 					'AND table_catalog=$1\n' +
 					'AND table_name=$2\n' +
 					'ORDER BY ordinal_position ASC';
 				break;
 		}
 
-		runQuery(query, [ options.schema, tableName ], function(err, results) {
+		runQuery(query, [ options.database, tableName, options.schema ], function(err, results) {
 			if (err) {
 				callback(err);
 				return;
@@ -166,6 +174,23 @@ module.exports = function(options, callback) {
 		},
 		db = require(options.dialect);
 
+	switch (options.dialect) {
+		case 'mysql':
+			client = db.createConnection(options.dsn);
+			options.database = options.database || client.config.database;
+			break;
+		case 'pg':
+			client = new db.Client(options.dsn);
+			options.database = options.database || client.database;
+			options.schema = options.schema || 'public';
+			break;
+	}
+
+	if (!options.database) {
+		callback(new Error('options.database is required if it is not part of the DSN'));
+		return;
+	}
+
 	function openFile(next) {
 		if (typeof(options.outputFile) === 'string') {
 			fs.open(options.outputFile, 'w', options.mode, function(err, descriptor) {
@@ -184,32 +209,17 @@ module.exports = function(options, callback) {
 		}
 	}
 
-	function createClientAndConnect(next) {
+	function connect(next) {
 		log('debug', 'Attempting connection with DSN "' + options.dsn + '"');
-		var connect;
-		switch (options.dialect) {
-			case 'mysql':
-				connect = function(callback) {
-					client = db.createConnection(options.dsn);
-					client.connect(callback);
-				};
-				break;
-			case 'pg':
-				connect = function(callback) {
-					client = new db.Client(options.dsn);
-					client.connect(callback);
-				};
-				break;
-		}
-		try {
-			connect(next);
-		} catch (e) {
-			next('Error creating database client (check your DSN): ' + e);
-		}
+		client.connect(next);
 	}
 
 	function writeHead(next) {
-		log('info', 'Starting generation against schema "' + options.schema + '"');
+		log('info',
+			'Starting generation against ' + options.database +
+				(options.schema ? '.' + options.schema : '')
+		);
+
 		var functions = [];
 		if (options.prepend) {
 			functions.push(function(next) {
@@ -296,7 +306,7 @@ module.exports = function(options, callback) {
 
 	async.series([
 		openFile,
-		createClientAndConnect,
+		connect,
 		writeHead,
 		fetchTables,
 		processTables,

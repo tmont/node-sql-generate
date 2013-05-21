@@ -1,0 +1,1 @@
+drop owned by root;
