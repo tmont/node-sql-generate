@@ -1,6 +1,7 @@
 # node-sql-generate
 
 [![Build Status](https://travis-ci.org/tmont/node-sql-generate.png)](https://travis-ci.org/tmont/node-sql-generate)
+[![NPM version](https://badge.fury.io/js/node-sql-generate.png)](http://badge.fury.io/js/node-sql-generate)
 
 This library is a command line tool/API for automatically generating
 definitions usable by the [node-sql](https://github.com/brianc/node-sql).
@@ -9,7 +10,7 @@ It inspects your database and generates JavaScript.
 Currently there is support for MySQL and Postgres.
 
 ## Installation
-Install via NPM (eventually): `npm install -g sql-generate`
+Install via NPM: `npm install -g sql-generate`
 
 This will put the binary `node-sql-generate` in your path.
 
