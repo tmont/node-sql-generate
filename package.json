@@ -1,7 +1,7 @@
 {
 	"name": "node-sql-generate",
 	"version": "0.0.1",
-	"description": "Automatic generation of SQL definitions for sql module",
+	"description": "Automatic generation of SQL definitions for use by the sql module",
 	"keywords": [ "sql", "generate" ],
 
 	"author": "Tommy Montgomery <tmont@tmont.com> (http://tmont.com/)",
@@ -9,6 +9,16 @@
 		"type": "git",
 		"url": "https://github.com/tmont/node-sql-generate.git"
 	},
+
+	"bin": {
+		"node-sql-generate": "bin/node-sql-generate.js"
+	},
+
+	"directories": {
+		"lib": "src"
+	},
+
+	"main": "src/generator.js",
 
 	"dependencies": {
 		"mysql": "2.0.0-alpha8",
@@ -21,5 +31,9 @@
 	"devDependencies": {
 		"mocha": "1.9.0",
 		"should": "1.2.2"
+	},
+
+	"scripts": {
+		"test": "./node_modules/.bin/mocha -R spec tests"
 	}
 }

@@ -1,0 +1,1 @@
+drop database node_sql_generate;
