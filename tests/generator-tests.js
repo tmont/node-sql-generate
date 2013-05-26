@@ -10,7 +10,7 @@ var should = require('should'),
 		},
 		pg: {
 			dev: 'postgres://sqlgenerate:password@127.0.0.1:54320/postgres',
-			travis: 'postgres://root@127.0.0.1/postgres'
+			travis: 'postgres://postgres@127.0.0.1/postgres'
 		}
 	};
 
