@@ -110,7 +110,9 @@ describe('generator', function() {
 					if (dialect === 'mysql') {
 						sql = fs.readFileSync(path.join(__dirname, 'scripts', dialect + '-after.sql'), 'utf8');
 					} else if (dialect === 'pg') {
-						sql = 'drop owned by ' + (process.env.TRAVIS ? 'postgres' : 'sqlgenerate') + ';';
+						sql = 'drop table node_sql_generate.foo;';
+						sql += ' drop table node_sql_generate.bar;';
+						sql += ' drop schema node_sql_generate;';
 					}
 					client.query(sql, callback);
 				}
