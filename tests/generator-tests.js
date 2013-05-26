@@ -106,7 +106,12 @@ describe('generator', function() {
 
 			after(function(done) {
 				function runScripts(callback) {
-					var sql = fs.readFileSync(path.join(__dirname, 'scripts', dialect + '-after.sql'), 'utf8');
+					var sql;
+					if (dialect === 'mysql') {
+						sql = fs.readFileSync(path.join(__dirname, 'scripts', dialect + '-after.sql'), 'utf8');
+					} else if (dialect === 'pg') {
+						sql = 'drop owned by ' + (process.env.TRAVIS ? 'postgres' : 'sqlgenerate') + ';';
+					}
 					client.query(sql, callback);
 				}
 
