@@ -4,7 +4,8 @@ var should = require('should'),
 	util = require('util'),
 	generate = require('../'),
 	mysqlPort = process.env.MODE === 'mocha' ? 33060 : 3306,
-	postgresPort = process.env.MODE === 'mocha' ? 54320 : 5432;
+	postgresPort = process.env.MODE === 'mocha' ? 54320 : 5432,
+	host = process.env.MODE === 'mocha' ? '127.0.0.1' : 'localhost';
 
 describe('generator', function() {
 	describe('argument validation', function() {
@@ -43,8 +44,8 @@ describe('generator', function() {
 
 	var database = 'node_sql_generate',
 		dialects = {
-			mysql: 'mysql://sqlgenerate:password@127.0.0.1:' + mysqlPort +'/',
-			pg: 'postgres://sqlgenerate:password@127.0.0.1:' + postgresPort + '/postgres'
+			mysql: 'mysql://sqlgenerate:password@' + host + ':' + mysqlPort +'/',
+			pg: 'postgres://sqlgenerate:password@' + host + ':' + postgresPort + '/postgres'
 		},
 		getExpected = function(name) {
 			return fs.readFileSync(path.join(__dirname, 'expected', name + '.js'), 'utf8');
