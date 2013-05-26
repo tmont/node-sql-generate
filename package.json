@@ -20,7 +20,8 @@
 		"pg": "1.1.1",
 		"commander": "1.1.1",
 		"async": "0.2.8",
-		"colors": "0.6.0-1"
+		"colors": "0.6.0-1",
+		"sql": "0.18.0"
 	},
 
 	"devDependencies": {

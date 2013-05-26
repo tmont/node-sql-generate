@@ -1,7 +1,8 @@
 var fs = require('fs'),
 	util = require('util'),
 	info = require('./package.json'),
-	async = require('async');
+	async = require('async'),
+	sql = require('sql');
 
 var supportedDialects = {
 	mysql: 1,
@@ -61,14 +62,15 @@ module.exports = function(options, callback) {
 		});
 	}
 
-	function runQuery(query, params, callback) {
-		log('debug', 'QUERY: ' + query + ' :: ' + util.inspect(params));
+	function runQuery(query, callback) {
+		query = query.toQuery();
+		log('debug', 'QUERY: ' + query.text + ' :: ' + util.inspect(query.values));
 		switch (options.dialect) {
 			case 'mysql':
-				client.query(query, params, callback);
+				client.query(query.text, query.values, callback);
 				break;
 			case 'pg':
-				client.query(query, params, function(err, result) {
+				client.query(query.text, query.values, function(err, result) {
 					callback(err, result && result.rows);
 				});
 				break;
@@ -96,26 +98,24 @@ module.exports = function(options, callback) {
 	}
 
 	function getListOfTables(callback) {
-		var query = '';
+		var query = tables
+			.select(tables.name.as('name'))
+			.from(tables);
+
 		switch (options.dialect) {
 			case 'mysql':
-				query = 'SELECT\n' +
-					'TABLE_NAME `name`\n' +
-					'FROM information_schema.TABLES\n' +
-					'WHERE TABLE_SCHEMA=?\n' +
-					'ORDER BY TABLE_NAME ASC';
+				query = query.where(tables.schema.equals(options.database));
 				break;
 			case 'pg':
-				query = 'SELECT\n' +
-					'table_name "name"\n' +
-					'FROM information_schema.tables\n' +
-					'WHERE table_schema = $2\n' +
-					'AND table_catalog = $1\n' +
-					'ORDER BY table_name ASC';
+				query = query
+					.where(tables.schema.equals(options.schema))
+					.and(tables.catalog.equals(options.database));
 				break;
 		}
 
-		runQuery(query, [ options.database, options.schema ], function(err, rows) {
+		query = query.order(tables.name);
+
+		runQuery(query, function(err, rows) {
 			if (err) {
 				callback(err);
 				return;
@@ -128,28 +128,21 @@ module.exports = function(options, callback) {
 	}
 
 	function getListOfColumns(tableName, callback) {
-		var query = '';
+		var query = columns
+			.select(columns.name.as('name'))
+			.from(columns)
+			.where(columns.tableSchema.equals(options.database))
+			.and(columns.tableName.equals(tableName));
+
 		switch (options.dialect) {
-			case 'mysql':
-				query = 'SELECT\n' +
-					'COLUMN_NAME `name`\n' +
-					'FROM information_schema.COLUMNS\n' +
-					'WHERE TABLE_SCHEMA=?\n' +
-					'AND TABLE_NAME=?\n' +
-					'ORDER BY ORDINAL_POSITION ASC';
-				break;
 			case 'pg':
-				query = 'SELECT\n' +
-					'column_name "name" \n' +
-					'FROM information_schema.columns\n' +
-					'WHERE table_schema=$3\n' +
-					'AND table_catalog=$1\n' +
-					'AND table_name=$2\n' +
-					'ORDER BY ordinal_position ASC';
+				query = query.and(columns.tableCatalog.equals(options.schema));
 				break;
 		}
 
-		runQuery(query, [ options.database, tableName, options.schema ], function(err, results) {
+		query = query.order(columns.ordinalPosition);
+
+		runQuery(query, function(err, results) {
 			if (err) {
 				callback(err);
 				return;
@@ -172,17 +165,59 @@ module.exports = function(options, callback) {
 			written: 0,
 			buffer: ''
 		},
-		db = require(options.dialect);
+		db = require(options.dialect),
+		columns,
+		tables;
 
 	switch (options.dialect) {
 		case 'mysql':
 			client = db.createConnection(options.dsn);
 			options.database = options.database || client.config.database;
+			sql.setDialect('mysql');
+			columns = sql.define({
+				name: 'COLUMNS',
+				schema: 'information_schema',
+				columns: [
+					{ name: 'TABLE_SCHEMA', property: 'tableSchema' },
+					{ name: 'TABLE_NAME', property: 'tableName' },
+					{ name: 'COLUMN_NAME', property: 'name' },
+					{ name: 'ORDINAL_POSITION', property: 'ordinalPosition' }
+				]
+			});
+			tables = sql.define({
+				name: 'TABLES',
+				schema: 'information_schema',
+				columns: [
+					{ name: 'TABLE_NAME', property: 'name' },
+					{ name: 'TABLE_SCHEMA', property: 'schema' }
+				]
+			});
 			break;
 		case 'pg':
+			sql.setDialect('postgres');
 			client = new db.Client(options.dsn);
 			options.database = options.database || client.database;
 			options.schema = options.schema || 'public';
+			columns = sql.define({
+				name: 'columns',
+				schema: 'information_schema',
+				columns: [
+					{ name: 'table_schema', property: 'tableSchema' },
+					{ name: 'table_name', property: 'tableName' },
+					{ name: 'table_catalog', property: 'tableCatalog' },
+					{ name: 'column_name', property: 'name' },
+					{ name: 'ordinal_position', property: 'ordinalPosition' }
+				]
+			});
+			tables = sql.define({
+				name: 'tables',
+				schema: 'information_schema',
+				columns: [
+					{ name: 'table_name', property: 'name' },
+					{ name: 'table_schema', property: 'schema' },
+					{ name: 'table_catalog', property: 'catalog' }
+				]
+			});
 			break;
 	}
 
