@@ -107,15 +107,12 @@ generateSqlDefinition(options, function(err, stats) {
 ```
 
 ## Development
-To run the tests, you'll need a local instance of both MySQL and
-Postgres running, with the user `sqlgenerate@locahost` (password: `password`).
-On MySQL the user must have all privileges and on Postgres the user
-must be a superuser. See the [script that Travis-CI uses](./scripts/create_test_users.sh)
-to create these users for details.
+To run the tests, you'll need to install [Vagrant](http://www.vagrantup.com/).
 
 ```bash
 git clone git@github.com:tmont/node-sql-generate.git
 cd node-sql-generate
 npm install
+vagrant up
 npm test
 ```

@@ -131,12 +131,16 @@ module.exports = function(options, callback) {
 		var query = columns
 			.select(columns.name.as('name'))
 			.from(columns)
-			.where(columns.tableSchema.equals(options.database))
-			.and(columns.tableName.equals(tableName));
+			.where(columns.tableName.equals(tableName));
 
 		switch (options.dialect) {
+			case 'mysql':
+				query = query.and(columns.tableSchema.equals(options.database));
+				break;
 			case 'pg':
-				query = query.and(columns.tableCatalog.equals(options.schema));
+				query = query
+					.and(columns.tableSchema.equals(options.schema))
+					.and(columns.tableCatalog.equals(options.database));
 				break;
 		}
 
