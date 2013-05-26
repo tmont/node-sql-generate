@@ -30,6 +30,6 @@
 	},
 
 	"scripts": {
-		"test": "export MODE=mocha && ./node_modules/.bin/mocha -R spec tests"
+		"test": "./node_modules/.bin/mocha -R spec tests"
 	}
 }

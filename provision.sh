@@ -3,9 +3,12 @@
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y mysql-server postgresql libpq-dev
-pushd /vagrant > /dev/null
-./scripts/create_test_users.sh
-popd > /dev/null
+
+# create mysql user
+#mysql -u root < ./scripts/create_mysql_user.sql
+
+# create postgres user
+sudo su -c "psql -d postgres -f /vagrant/scripts/create_postgres_user.sql" postgres
 
 # Allow remote connections to MySQL
 sudo sed -i 's/^bind-address/#bind-address/' /etc/mysql/my.cnf
