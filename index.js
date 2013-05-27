@@ -10,7 +10,6 @@ var supportedDialects = {
 };
 
 /**
- *
  * @param {Object} options
  * @param {String} options.dialect Either "mysql" or "pg"
  * @param {String} options.dsn The DSN to use to connect to the database
@@ -129,7 +128,12 @@ module.exports = function(options, callback) {
 
 	function getListOfColumns(tableName, callback) {
 		var query = columns
-			.select(columns.name.as('name'))
+			.select(
+				columns.name.as('name'),
+				columns.isNullable.as('nullable'),
+				columns.defaultValue.as('default_value'),
+				columns.type.as('type')
+			)
 			.from(columns)
 			.where(columns.tableName.equals(tableName));
 
@@ -152,9 +156,7 @@ module.exports = function(options, callback) {
 				return;
 			}
 
-			callback(null, results.map(function(row) {
-				return row.name;
-			}));
+			callback(null, results);
 		});
 	}
 
@@ -185,7 +187,11 @@ module.exports = function(options, callback) {
 					{ name: 'TABLE_SCHEMA', property: 'tableSchema' },
 					{ name: 'TABLE_NAME', property: 'tableName' },
 					{ name: 'COLUMN_NAME', property: 'name' },
-					{ name: 'ORDINAL_POSITION', property: 'ordinalPosition' }
+					{ name: 'ORDINAL_POSITION', property: 'ordinalPosition' },
+					{ name: 'DATA_TYPE', property: 'type' },
+					{ name: 'CHARACTER_MAXIMUM_LENGTH', property: 'charLength' },
+					{ name: 'COLUMN_DEFAULT', property: 'defaultValue' },
+					{ name: 'IS_NULLABLE', property: 'isNullable' }
 				]
 			});
 			tables = sql.define({
@@ -210,7 +216,11 @@ module.exports = function(options, callback) {
 					{ name: 'table_name', property: 'tableName' },
 					{ name: 'table_catalog', property: 'tableCatalog' },
 					{ name: 'column_name', property: 'name' },
-					{ name: 'ordinal_position', property: 'ordinalPosition' }
+					{ name: 'ordinal_position', property: 'ordinalPosition' },
+					{ name: 'data_type', property: 'type' },
+					{ name: 'character_maximum_length', property: 'charLength' },
+					{ name: 'column_default', property: 'defaultValue' },
+					{ name: 'is_nullable', property: 'isNullable' }
 				]
 			});
 			tables = sql.define({
@@ -292,13 +302,13 @@ module.exports = function(options, callback) {
 		function writeTable(tableName, next) {
 			var start = Date.now();
 			log('info', 'Starting ' + options.schema + '.' + tableName + '...');
-			getListOfColumns(tableName, function(err, columnNames) {
+			getListOfColumns(tableName, function(err, columnData) {
 				if (err) {
 					next(err);
 					return;
 				}
 
-				log('debug', '  Found ' + columnNames.length + ' columns');
+				log('debug', '  Found ' + columnData.length + ' columns');
 
 				var args = [],
 					fullName = (options.schema || options.database) + '.' + tableName;
@@ -313,8 +323,16 @@ module.exports = function(options, callback) {
 				args.push(options.indent + 'name: \'' + tableName + '\',');
 				args.push(options.indent + 'columns: [');
 
-				args.push(columnNames.map(function(columnName) {
-					return options.indent + options.indent + '\'' + camelize(columnName) + '\'';
+				args.push(columnData.map(function(column) {
+					var columnString = options.indent + options.indent + '{ ' +
+						'name: \'' + column.name + '\'';
+
+					if (options.camelize) {
+						columnString += ', property: \'' + camelize(column.name) + '\'';
+					}
+					columnString += ' }';
+
+					return columnString;
 				}).join(',' + options.eol));
 
 				args.push(options.indent + ']');

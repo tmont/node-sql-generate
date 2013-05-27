@@ -8,8 +8,8 @@ var sql = require('sql');
 exports.bar = sql.define({
 	name: 'bar',
 	columns: [
-		'id',
-		'fooId'
+		{ name: 'id', property: 'id' },
+		{ name: 'foo_id', property: 'fooId' }
 	]
 });
 
@@ -20,9 +20,9 @@ exports.bar = sql.define({
 exports.foo = sql.define({
 	name: 'foo',
 	columns: [
-		'id',
-		'field1',
-		'fooBarBaz'
+		{ name: 'id', property: 'id' },
+		{ name: 'field_1', property: 'field1' },
+		{ name: 'foo_bar_baz', property: 'fooBarBaz' }
 	]
 });
 

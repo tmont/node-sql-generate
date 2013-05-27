@@ -4,8 +4,8 @@ var sql = require('sql');
 exports.bar = sql.define({
 	name: 'bar',
 	columns: [
-		'id',
-		'foo_id'
+		{ name: 'id' },
+		{ name: 'foo_id' }
 	]
 });
 
@@ -13,9 +13,9 @@ exports.bar = sql.define({
 exports.foo = sql.define({
 	name: 'foo',
 	columns: [
-		'id',
-		'field_1',
-		'foo_bar_baz'
+		{ name: 'id' },
+		{ name: 'field_1' },
+		{ name: 'foo_bar_baz' }
 	]
 });
 

@@ -11,7 +11,7 @@ program
 	.option('-i, --indent <token>', 'Indentation token; defaults to a TAB character', '\t')
 	.option('-D, --database <name>', 'Name of database to extract from')
 	.option('-s, --schema <name>', 'Name of schema to extract from (Postgres only)')
-	.option('--camelize', 'Convert underscored names to camel case ("foo_bar" -> "fooBar")', false)
+	.option('--camelize', 'Convert underscored names to camel case, requires sql >= 0.18.0"', false)
 	.option('--eol <token>', 'Line terminator token; defaults to "\\n"', '\n')
 	.option('--mode <mode>', 'The permission mode of the generated file; defaults to 0644', 0644)
 	.option('--encoding <encoding>', 'The encoding to use for writing; defaults to "utf8"', 'utf8')
