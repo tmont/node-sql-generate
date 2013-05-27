@@ -4,6 +4,12 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y mysql-server postgresql libpq-dev
 
+# create mysql user
+mysql -u root
+
+# create mysql user
+mysql -u root < /vagrant/scripts/create_mysql_user.sql
+
 # create postgres user
 sudo su -c "psql -d postgres -f /vagrant/scripts/create_postgres_user.sql" postgres
 
