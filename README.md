@@ -1,7 +1,7 @@
 # node-sql-generate
 
 [![Build Status](https://travis-ci.org/tmont/node-sql-generate.png)](https://travis-ci.org/tmont/node-sql-generate)
-[![NPM version](https://badge.fury.io/js/node-sql-generate.png)](http://badge.fury.io/js/node-sql-generate)
+[![NPM version](https://badge.fury.io/js/sql-generate.png)](http://badge.fury.io/js/sql-generate)
 
 This library is a command line tool/API for automatically generating
 definitions usable by the [node-sql](https://github.com/brianc/node-sql) library.
