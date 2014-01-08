@@ -16,12 +16,12 @@
 	},
 
 	"dependencies": {
-		"mysql": "2.0.0-alpha8",
+		"mysql": "2.0.0-rc2",
 		"pg": "2.11.0",
-		"commander": "1.2.0",
+		"commander": "2.1.0",
 		"async": "0.2.9",
-		"colors": "0.6.0-1",
-		"sql": "0.25.0"
+		"colors": "0.6.2",
+		"sql": "0.34.0"
 	},
 
 	"devDependencies": {
