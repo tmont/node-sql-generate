@@ -5,7 +5,7 @@ var should = require('should'),
 	generate = require('../'),
 	cfg = {
 		mysql: {
-			dev: 'mysql://root@127.0.0.1:33060/',
+			dev: 'mysql://root@127.0.0.1:33061/',
 			travis: 'mysql://root@127.0.0.1/'
 		},
 		pg: {
