@@ -1,5 +1,6 @@
 
 module.exports = function(sql) {
+	var exports = {};
 
 
 	/**
@@ -27,4 +28,5 @@ module.exports = function(sql) {
 	});
 
 
+	return exports;
 };

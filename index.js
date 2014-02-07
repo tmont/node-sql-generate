@@ -288,7 +288,12 @@ module.exports = function(options, callback) {
 
 		if (options.modularize) {
 			functions.push(function(next) {
-				write('module.exports = function(sql) {', options.eol, next);
+				write(
+					'module.exports = function(sql) {',
+					options.indent + 'var exports = {};',
+					options.eol,
+					next
+				);
 			});
 		} else {
 			functions.push(function(next) {
@@ -369,7 +374,11 @@ module.exports = function(options, callback) {
 
 	function writeTail(next) {
 		if (options.modularize) {
-			write('};', tail);
+			write(
+				options.indent + 'return exports;',
+				'};',
+				tail
+			);
 		} else {
 			tail();
 		}
