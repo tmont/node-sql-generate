@@ -14,6 +14,10 @@ Install via NPM: `npm install -g sql-generate`
 
 This will put the binary `node-sql-generate` in your path.
 
+**Note**: you will need to install either the `mysql` module or the `pg` module
+separately. This module does not install those dependencies for you (this was changed
+as of 1.0.0).
+
 ## Usage
 ### Command line
 In its simplest form, you do something like this:
