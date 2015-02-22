@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var program = require('commander'),
+	chalk = require('chalk'),
 	generate = require('../');
 
 program
@@ -33,8 +34,6 @@ function log(type, message) {
 		return;
 	}
 
-	require('colors');
-
 	var color;
 	switch (type) {
 		case 'debug':
@@ -54,7 +53,7 @@ function log(type, message) {
 			break;
 	}
 
-	console.error(message.toString()[color]);
+	console.error(chalk[color](message.toString()));
 }
 
 program.log = log;

@@ -18,7 +18,7 @@
 	"dependencies": {
 		"commander": "2.6.0",
 		"async": "0.9.0",
-		"colors": "0.6.2",
+		"chalk": "0.5.1",
 		"sql": "0.45.2"
 	},
 
