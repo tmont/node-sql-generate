@@ -316,7 +316,7 @@ module.exports = function(options, callback) {
 			var start = Date.now(),
 				//indent everything by one if modularize is set
 				indent = options.modularize ? options.indent : '';
-			log('info', 'Starting ' + options.schema + '.' + tableName + '...');
+			log('info', 'Starting ' + options.database + '.' + (options.schema ? options.schema + '.' : '') + tableName + '...');
 			getListOfColumns(tableName, function(err, columnData) {
 				if (err) {
 					next(err);
