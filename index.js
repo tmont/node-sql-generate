@@ -6,12 +6,13 @@ var fs = require('fs'),
 
 var supportedDialects = {
 	mysql: 1,
-	pg: 1
+	pg: 1,
+	mssql: 1
 };
 
 /**
  * @param {Object} options
- * @param {String} options.dialect Either "mysql" or "pg"
+ * @param {String} options.dialect Either "mysql", "pg" or "mssql"
  * @param {String} options.dsn The DSN to use to connect to the database
  * @param {String} options.schema The name of the schema/database to extract from
  * @param {String} [options.indent] String to use for indentation of generated code, defaults to "\t"
@@ -36,19 +37,18 @@ module.exports = function(options, callback) {
 		return;
 	}
 	if (!options.dialect) {
-		var match = /^(mysql|postgres)/i.exec(options.dsn);
+		var match = /^(mysql|postgres|mssql)/i.exec(options.dsn);
 		if (!match) {
 			callback && callback(new Error('options.dialect is required'));
 			return;
 		}
-
-		options.dialect = match[1].toLowerCase() === 'mysql' ? 'mysql' : 'pg';
+		options.dialect = match[1].toLowerCase() === 'mysql' ? 'mysql' : match[1].toLowerCase() === 'mssql' ? 'mssql' : 'pg';
 	}
-
+	
 	options.dialect = options.dialect.toLowerCase();
 
 	if (!supportedDialects[options.dialect]) {
-		callback && callback(new Error('options.dialect must be either "mysql" or "pg"'));
+		callback && callback(new Error('options.dialect must be either "mysql", "pg" or "mssql"'));
 		return;
 	}
 
@@ -74,6 +74,22 @@ module.exports = function(options, callback) {
 				client.query(query.text, query.values, function(err, result) {
 					callback(err, result && result.rows);
 				});
+				break;
+			case 'mssql':
+			   client.connect(
+				    function(err) {
+				
+				    var req = client.request();
+				    
+					query.values.map( function(e, rank) { // magic 
+				        req.input(rank+1, e);     
+				    });
+					
+				    req.query(query.text, function(err, recordset) {
+						callback(err, recordset)
+				    });
+				});
+
 				break;
 		}
 	}
@@ -112,6 +128,13 @@ module.exports = function(options, callback) {
 					.where(tables.schema.equals(options.schema))
 					.and(tables.catalog.equals(options.database));
 				break;
+			case 'mssql':
+				query = query
+					.where(tables.schema.equals(options.schema || 'dbo'))
+					.and(tables.catalog.equals(options.database))
+					.and(tables.type.equals('BASE TABLE'))
+					.and(tables.name.notEquals('sysdiagrams')); //disconsider views
+				break;
 		}
 
 		query = query.order(tables.name);
@@ -121,7 +144,6 @@ module.exports = function(options, callback) {
 				callback(err);
 				return;
 			}
-
 			callback(null, rows.map(function(row) {
 				return row.name;
 			}));
@@ -148,10 +170,15 @@ module.exports = function(options, callback) {
 					.and(columns.tableSchema.equals(options.schema))
 					.and(columns.tableCatalog.equals(options.database));
 				break;
+			case 'mssql':
+				query = query
+					.and(columns.tableSchema.equals(options.schema || 'dbo'))
+					.and(columns.tableCatalog.equals(options.database));
+				break;
 		}
 
 		query = query.order(columns.ordinalPosition);
-
+		
 		runQuery(query, function(err, results) {
 			if (err) {
 				callback(err);
@@ -232,6 +259,43 @@ module.exports = function(options, callback) {
 					{ name: 'table_name', property: 'name' },
 					{ name: 'table_schema', property: 'schema' },
 					{ name: 'table_catalog', property: 'catalog' }
+				]
+			});
+			break;
+		case 'mssql':
+			sql.setDialect('mssql');
+			//Extract information from mssql dsn to options, since the mssql module do not understand the dsn format
+			var mssqldsn = options.dsn;
+			if (mssqldsn.slice(-1) == ';') {
+				mssqldsn = mssqldsn.substring(0, mssqldsn.length - 1);
+			}
+			mssqldsn = JSON.parse("{\"" + mssqldsn.replace('mssql://', '').replace(/=/g, '\":\"').replace(/;/g, '\",\"') + "\"}");
+
+			client = new db.Connection(mssqldsn);
+			options.database = options.database || mssqldsn.database;
+			columns = sql.define({
+				name: 'columns',
+				schema: options.database + '].[information_schema',
+				columns: [
+					{ name: 'table_schema', property: 'tableSchema' },
+					{ name: 'table_name', property: 'tableName' },
+					{ name: 'table_catalog', property: 'tableCatalog' },
+					{ name: 'column_name', property: 'name' },
+					{ name: 'ordinal_position', property: 'ordinalPosition' },
+					{ name: 'data_type', property: 'type' },
+					{ name: 'character_maximum_length', property: 'charLength' },
+					{ name: 'column_default', property: 'defaultValue' },
+					{ name: 'is_nullable', property: 'isNullable' }
+				]
+			});
+			tables = sql.define({
+				name: 'tables',
+				schema: options.database + '].[information_schema',
+				columns: [
+					{ name: 'table_name', property: 'name' },
+					{ name: 'table_schema', property: 'schema' },
+					{ name: 'table_catalog', property: 'catalog' },
+					{ name: 'table_type', property: 'type' }
 				]
 			});
 			break;

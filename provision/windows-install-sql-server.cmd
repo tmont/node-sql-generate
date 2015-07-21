@@ -1,0 +1,7 @@
+echo Installing SQL Express 2014	
+
+C:\tmp\SQLEXPR_x64_ENU.exe /Q
+
+%WINDIR%\SysWOW64\SQLEXPR_x64_ENU\SETUP.EXE /Q /INDICATEPROGRESS /Action=install /INSTANCENAME="SQLEXPRESS" /INSTANCEID="SQLExpress" /IAcceptSQLServerLicenseTerms /FEATURES=SQL,Tools /TCPENABLED=1 /SECURITYMODE="SQL" /SAPWD="#SAPassword!"
+
+echo Done!

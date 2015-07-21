@@ -7,11 +7,11 @@ var program = require('commander'),
 program
 	.version(require('../package.json').version)
 	.option('--dsn <dsn>', 'Connection string')
-	.option('-d, --dialect <dialect>', 'Specify the SQL dialect: "mysql" or "pg"')
+	.option('-d, --dialect <dialect>', 'Specify the SQL dialect: "mysql", "pg" or "mssql"')
 	.option('-o, --output-file <file>', 'Output to this file; defaults to stdout')
 	.option('-i, --indent <token>', 'Indentation token; defaults to a TAB character', '\t')
 	.option('-D, --database <name>', 'Name of database to extract from')
-	.option('-s, --schema <name>', 'Name of schema to extract from (Postgres only)')
+	.option('-s, --schema <name>', 'Name of schema to extract from (Postgres/MSSQL only)')
 	.option('--camelize', 'Convert underscored names to camel case, requires sql >= 0.18.0"', false)
 	.option('--eol <token>', 'Line terminator token; defaults to "\\n"', '\n')
 	.option('--mode <mode>', 'The permission mode of the generated file; defaults to 0644', 0644)
@@ -26,6 +26,7 @@ program
 		console.log('Example DSN:');
 		console.log('  PostgreSQL: "postgres://user:password@host:5432/database"');
 		console.log('       MySQL: "mysql://user:password@host:3306/database"');
+		console.log('       MSSQL: "mssql://server=server[\\instance];database=database;user=user;password=password;"');
 	})
 	.parse(process.argv);
 

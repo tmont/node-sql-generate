@@ -1,0 +1,2 @@
+/tests/expected/*.js		eol=lf
+/tests/expected/eol.js		eol=crlf

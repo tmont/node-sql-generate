@@ -1,35 +1,34 @@
 {
-	"name": "sql-generate",
-	"version": "1.0.0",
-	"preferGlobal": true,
-	"description": "Automatic generation of SQL definitions for use by the sql module",
-	"keywords": [ "sql", "generate" ],
-
-	"author": "Tommy Montgomery <tmont@tmont.com> (http://tmont.com/)",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/tmont/node-sql-generate.git"
-	},
-
-	"bin": {
-		"node-sql-generate": "bin/node-sql-generate.js"
-	},
-
-	"dependencies": {
-		"commander": "2.6.0",
-		"async": "0.9.0",
-		"chalk": "0.5.1",
-		"sql": "0.45.2"
-	},
-
-	"devDependencies": {
-		"mocha": "2.1.0",
-		"mysql": "2.5.4",
-		"pg": "4.3.0",
-		"should": "5.0.1"
-	},
-
-	"scripts": {
-		"test": "./node_modules/.bin/mocha -R spec tests"
-	}
+  "name": "sql-generate",
+  "version": "1.0.0",
+  "preferGlobal": true,
+  "description": "Automatic generation of SQL definitions for use by the sql module",
+  "keywords": [
+    "sql",
+    "generate"
+  ],
+  "author": "Tommy Montgomery <tmont@tmont.com> (http://tmont.com/)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tmont/node-sql-generate.git"
+  },
+  "bin": {
+    "node-sql-generate": "bin/node-sql-generate.js"
+  },
+  "dependencies": {
+    "commander": "2.6.0",
+    "async": "0.9.0",
+    "chalk": "0.5.1",
+    "sql": "0.45.2"
+  },
+  "devDependencies": {
+    "mocha": "2.1.0",
+    "mssql": "^2.1.6",
+    "mysql": "2.5.4",
+    "pg": "4.3.0",
+    "should": "5.0.1"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha -R spec tests"
+  }
 }
