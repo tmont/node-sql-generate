@@ -1,2 +1,8 @@
-/tests/expected/*.js		eol=lf
-/tests/expected/eol.js		eol=crlf
+append.js eol=lf
+camelize.js eol=lf
+defaults.js eol=lf
+include-schema.js eol=lf
+indent.js eol=lf
+modularize.js eol=lf
+omit-comments.js eol=lf
+prepend.js eol=lf
