@@ -42,7 +42,10 @@ module.exports = function(options, callback) {
 			callback && callback(new Error('options.dialect is required'));
 			return;
 		}
-		options.dialect = match[1].toLowerCase() === 'mysql' ? 'mysql' : match[1].toLowerCase() === 'mssql' ? 'mssql' : 'pg';
+		options.dialect = match[1].toLowerCase();
+		if (options.dialect === 'postgres') {
+			options.dialect = 'pg';
+		}
 	}
 	
 	options.dialect = options.dialect.toLowerCase();
@@ -76,20 +79,13 @@ module.exports = function(options, callback) {
 				});
 				break;
 			case 'mssql':
-			   client.connect(
-				    function(err) {
-				
-				    var req = client.request();
-				    
-					query.values.map( function(e, rank) { // magic 
-				        req.input(rank+1, e);     
-				    });
-					
-				    req.query(query.text, function(err, recordset) {
-						callback(err, recordset)
-				    });
+				var req = client.request();
+
+				query.values.map(function(value, index) {
+					req.input(index + 1, value);
 				});
 
+				req.query(query.text, callback);
 				break;
 		}
 	}
@@ -110,7 +106,7 @@ module.exports = function(options, callback) {
 		} else {
 			stats.buffer += buffer.toString();
 			stats.bytesWritten += buffer.length;
-			process.nextTick(callback);
+			callback();
 		}
 	}
 
@@ -265,14 +261,24 @@ module.exports = function(options, callback) {
 		case 'mssql':
 			sql.setDialect('mssql');
 			//Extract information from mssql dsn to options, since the mssql module do not understand the dsn format
-			var mssqldsn = options.dsn;
-			if (mssqldsn.slice(-1) == ';') {
-				mssqldsn = mssqldsn.substring(0, mssqldsn.length - 1);
+			var mssqlDsn = options.dsn;
+			if (mssqlDsn.slice(-1) === ';') {
+				mssqlDsn = mssqlDsn.substring(0, mssqlDsn.length - 1);
 			}
-			mssqldsn = JSON.parse("{\"" + mssqldsn.replace('mssql://', '').replace(/=/g, '\":\"').replace(/;/g, '\",\"') + "\"}");
+			try {
+				mssqlDsn = JSON.parse("{\"" +
+					mssqlDsn.replace('mssql://', '')
+						.replace(/=/g, '\":\"')
+						.replace(/;/g, '\",\"') +
+					"\"}"
+				);
+			} catch (e) {
+				callback(e);
+				return;
+			}
 
-			client = new db.Connection(mssqldsn);
-			options.database = options.database || mssqldsn.database;
+			client = new db.Connection(mssqlDsn);
+			options.database = options.database || mssqlDsn.database;
 			columns = sql.define({
 				name: 'columns',
 				schema: options.database + '].[information_schema',

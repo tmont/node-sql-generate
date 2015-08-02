@@ -1,4 +1,5 @@
 var should = require('should'),
+	async = require('async'),
 	fs = require('fs'),
 	path = require('path'),
 	util = require('util'),
@@ -13,8 +14,7 @@ var should = require('should'),
 			travis: 'postgres://postgres@127.0.0.1/postgres'
 		},
 		mssql: {
-			dev: 'mssql://server=127.0.0.1;port=11433;user=sa;password=#SAPassword!;',
-			travis: 'mssql://server=127.0.0.1;port=11433;user=sa;password=#SAPassword!;'
+			dev: 'mssql://server=127.0.0.1;port=11433;user=sa;password=#SAPassword!;'
 		}
 	};
 
@@ -54,10 +54,11 @@ describe('generator', function() {
 	});
 
 	var database = 'node_sql_generate',
+		isTravis = !!process.env.TRAVIS,
 		dialects = {
-			mysql: process.env.TRAVIS ? cfg.mysql.travis : cfg.mysql.dev,
-			pg: process.env.TRAVIS ? cfg.pg.travis : cfg.pg.dev,
-			mssql: process.env.TRAVIS ? cfg.mssql.travis : cfg.mssql.dev
+			mysql: isTravis ? cfg.mysql.travis : cfg.mysql.dev,
+			pg: isTravis ? cfg.pg.travis : cfg.pg.dev,
+			mssql: isTravis ? null : cfg.mssql.dev
 		},
 		getExpected = function(name) {
 			return fs.readFileSync(path.join(__dirname, 'expected', name + '.js'), 'utf8');
@@ -69,15 +70,18 @@ describe('generator', function() {
 			return util._extend(util._extend({}, defaults), options);
 		};
 
-	//mssql only works in node v0.10, apparently
-	var nodeVersion = /^v(\d+)\.(\d+)/.exec(process.version);
-	if (!nodeVersion || (parseInt(nodeVersion[1]) === 0 && parseInt(nodeVersion[2]) > 10)) {
-		console.log('NOTE: Ignoring mssql dialect, incompatible with node v0.12');
-		delete dialects.mssql;
-	}
+	if ('mssql' in dialects) {
+		//mssql only works in node v0.10, apparently
+		var nodeVersion = /^v(\d+)\.(\d+)/.exec(process.version);
+		if (!nodeVersion || (parseInt(nodeVersion[1]) === 0 && parseInt(nodeVersion[2]) > 10)) {
+			console.log('NOTE: Ignoring mssql dialect, incompatible with node v0.12');
+			delete dialects.mssql;
+		}
 
-	if (process.env.TRAVIS) {
-		delete dialects.mssql;
+		//can't run mssql tests on travis
+		if (isTravis) {
+			delete dialects.mssql;
+		}
 	}
 
 	for (var dialect in dialects) {
@@ -108,21 +112,32 @@ describe('generator', function() {
 				before(function(done) {
 					function runScripts(err) {
 						should.not.exist(err);
-						if (dialect != 'mssql') {
+						if (dialect !== 'mssql') {
 							var sql = fs.readFileSync(path.join(__dirname, 'scripts', dialect + '-before.sql'), 'utf8');
 							client.query(sql, done);
 						}
 						else {
 						    var req = client.request();
-						    req.batch('create database node_sql_generate;', function(err, recordset) {
-								req.batch('create table node_sql_generate..foo (	id int,	field_1 varchar(30),	foo_bar_baz int)', function(err, recordset) {
-									req.batch('create table node_sql_generate..bar (	id int,	foo_id int)', function(err, recordset) {
-										done();
-									});
-								});
-							});
-							
-							
+							function createDatabase(next) {
+								req.batch('create database node_sql_generate;', next);
+							}
+
+							function createTableFoo(next) {
+								var query = 'create table node_sql_generate..foo (\n' +
+									'id int,\n' +
+									'field_1 varchar(30),\n' +
+									'foo_bar_baz int\n' +
+								')';
+
+								req.batch(query, next);
+							}
+
+							function createTableBar(next) {
+								var query = 'create table node_sql_generate..bar (id int, foo_id int)';
+								req.batch(query, next);
+							}
+
+							async.series([ createDatabase, createTableFoo, createTableBar ], done);
 						}
 					}
 
@@ -137,11 +152,15 @@ describe('generator', function() {
 							break;
 						case 'mssql':
 							var conn = dsn;
-							if (conn.slice(-1) == ';') {
+							if (conn.slice(-1) === ';') {
 								conn = conn.substring(0, conn.length - 1);
 							}
-							
-							conn = JSON.parse("{\"" + conn.replace('mssql://', '').replace(/=/g, '\":\"').replace(/;/g, '\",\"') + "\"}");
+
+							conn = JSON.parse(
+								"{\"" + conn.replace('mssql://', '')
+									.replace(/=/g, '\":\"')
+									.replace(/;/g, '\",\"') + "\"}"
+							);
 
 							client = new db.Connection(conn);
 							client.connect(runScripts);
@@ -152,6 +171,11 @@ describe('generator', function() {
 				after(function(done) {
 					function runScripts(callback) {
 						var sql;
+						if (dialect === 'mssql') {
+							client.request().batch('drop database node_sql_generate', callback);
+							return;
+						}
+
 						if (dialect === 'mysql') {
 							sql = fs.readFileSync(path.join(__dirname, 'scripts', dialect + '-after.sql'), 'utf8');
 						} else if (dialect === 'pg') {
@@ -159,13 +183,7 @@ describe('generator', function() {
 							sql += ' drop table node_sql_generate.bar;';
 							sql += ' drop schema node_sql_generate;';
 						} 
-						else if (dialect === 'mssql') {
-							var req = client.request();
-							req.batch('drop database node_sql_generate', function(err, recordset) {
-								callback(err);
-							});
-							return;
-						}
+
 						client.query(sql, callback);
 					}
 
@@ -201,8 +219,6 @@ describe('generator', function() {
 							options.schema = database;
 							break;
 						case 'mysql':
-							options.database = database;
-							break;
 						case 'mssql':
 							options.database = database;
 							break;
