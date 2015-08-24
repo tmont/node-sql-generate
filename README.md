@@ -65,18 +65,18 @@ Omitting it will assume a schema of "public".
 
 #### `--help`
 ```
-  Usage: node-sql-generate.js [options]
+  Usage: node-sql-generate [options]
 
   Options:
 
     -h, --help                output usage information
     -V, --version             output the version number
     --dsn <dsn>               Connection string
-    -d, --dialect <dialect>   Specify the SQL dialect: "mysql" or "pg"
+    -d, --dialect <dialect>   Specify the SQL dialect: "mysql", "pg" or "mssql"
     -o, --output-file <file>  Output to this file; defaults to stdout
     -i, --indent <token>      Indentation token; defaults to a TAB character
     -D, --database <name>     Name of database to extract from
-    -s, --schema <name>       Name of schema to extract from (Postgres only)
+    -s, --schema <name>       Name of schema to extract from (Postgres/MSSQL only)
     --camelize                Convert underscored names to camel case, requires sql >= 0.18.0"
     --eol <token>             Line terminator token; defaults to "\n"
     --mode <mode>             The permission mode of the generated file; defaults to 0644
@@ -91,7 +91,7 @@ Omitting it will assume a schema of "public".
 Example DSN:
   PostgreSQL: "postgres://user:password@host:5432/database"
        MySQL: "mysql://user:password@host:3306/database"
-       MSSQL: "mssql://server=127.0.0.1;port=11433;user=sa;password=#SAPassword!;"
+       MSSQL: "mssql://server=server[\instance];database=database;user=user;password=password;"
 ```
 
 ### API
