@@ -16,17 +16,17 @@
     "node-sql-generate": "bin/node-sql-generate.js"
   },
   "dependencies": {
-    "commander": "2.6.0",
-    "async": "0.9.0",
-    "chalk": "0.5.1",
-    "sql": "0.45.2"
+    "commander": "2.8.1",
+    "async": "1.4.2",
+    "chalk": "1.1.1",
+    "sql": "0.58.0"
   },
   "devDependencies": {
-    "mocha": "2.1.0",
-    "mssql": "^2.1.6",
-    "mysql": "2.5.4",
-    "pg": "4.3.0",
-    "should": "5.0.1"
+    "mocha": "2.2.5",
+    "mssql": "2.2.0",
+    "mysql": "2.9.0",
+    "pg": "4.4.1",
+    "should": "7.0.4"
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha -R spec tests"

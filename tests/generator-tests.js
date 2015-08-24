@@ -72,11 +72,11 @@ describe('generator', function() {
 
 	if ('mssql' in dialects) {
 		//mssql only works in node v0.10, apparently
-		var nodeVersion = /^v(\d+)\.(\d+)/.exec(process.version);
-		if (!nodeVersion || (parseInt(nodeVersion[1]) === 0 && parseInt(nodeVersion[2]) > 10)) {
-			console.log('NOTE: Ignoring mssql dialect, incompatible with node v0.12');
-			delete dialects.mssql;
-		}
+		//var nodeVersion = /^v(\d+)\.(\d+)/.exec(process.version);
+		//if (!nodeVersion || (parseInt(nodeVersion[1]) === 0 && parseInt(nodeVersion[2]) > 10)) {
+		//	console.log('NOTE: Ignoring mssql dialect, incompatible with node v0.12');
+		//	delete dialects.mssql;
+		//}
 
 		//can't run mssql tests on travis
 		if (isTravis) {
