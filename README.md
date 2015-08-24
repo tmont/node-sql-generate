@@ -7,7 +7,7 @@ This library is a command line tool/API for automatically generating
 definitions usable by the [node-sql](https://github.com/brianc/node-sql) library.
 It inspects your database and generates JavaScript.
 
-Currently there is support for MySQL and Postgres.
+Currently there is support for MySQL, Postgres and MSSQL.
 
 ## Installation
 Install via NPM: `npm install -g sql-generate`
@@ -122,3 +122,14 @@ npm install
 vagrant up
 npm test
 ```
+
+### Windows Testing
+The Vagrant script will install a Windows VM which takes up about 14GB on your
+hard drive. Install at your own risk :)
+
+Also, some users experienced segfaults while running windows tests (probably due
+to unrelated environment issues) on Linux. This issue only manifested in node 0.12 (0.10.x was
+okay). Other users reported no issues (on OS X and Linux).
+
+Travis does not yet support Windows, so the MSSQL tests are disabled when run
+by continuous integration.
