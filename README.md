@@ -14,9 +14,11 @@ Install via NPM: `npm install -g sql-generate`
 
 This will put the binary `node-sql-generate` in your path.
 
-**Note**: you will need to install either the `mysql` module or the `pg` module
-separately. This module does not install those dependencies for you (this was changed
-as of 1.0.0).
+**Note**: you will need to install the appropriate client drivers separately
+([mysql](https://github.com/felixge/node-mysql/),
+[pg](https://github.com/brianc/node-postgres),
+[mssql](https://github.com/patriksimek/node-mssql)). This module does not
+install those dependencies for you (this was changed as of `v1.0.0`).
 
 ## Usage
 ### Command line
@@ -89,6 +91,7 @@ Omitting it will assume a schema of "public".
 Example DSN:
   PostgreSQL: "postgres://user:password@host:5432/database"
        MySQL: "mysql://user:password@host:3306/database"
+       MSSQL: "mssql://server=127.0.0.1;port=11433;user=sa;password=#SAPassword!;"
 ```
 
 ### API
