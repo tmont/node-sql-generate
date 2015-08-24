@@ -1,6 +1,6 @@
 {
 	"name": "sql-generate",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"preferGlobal": true,
 	"description": "Automatic generation of SQL definitions for use by the sql module",
 	"keywords": [
