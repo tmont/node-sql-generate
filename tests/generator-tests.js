@@ -210,6 +210,39 @@ describe('generator', function() {
 					}
 				});
 
+				it('should set tables property on stats', function(done) {
+					var options = {
+						dsn: dsn
+					};
+					switch (dialect) {
+						case 'pg':
+							options.schema = database;
+							break;
+						case 'mysql':
+						case 'mssql':
+							options.database = database;
+							break;
+					}
+					generate(options, function(err, stats) {
+						should.not.exist(err);
+						stats.should.have.property('tables');
+						stats.tables.should.have.property('foo');
+						stats.tables.foo.should.have.property('columns');
+						stats.tables.foo.columns.should.eql([
+							{ name: 'id', property: 'id' },
+							{ name: 'field_1', property: 'field1' },
+							{ name: 'foo_bar_baz', property: 'fooBarBaz' }
+						]);
+						stats.tables.should.have.property('bar');
+						stats.tables.bar.should.have.property('columns');
+						stats.tables.bar.columns.should.eql([
+							{ name: 'id', property: 'id' },
+							{ name: 'foo_id', property: 'fooId' }
+						]);
+						done();
+					});
+				});
+
 				it('with dialect embedded in dsn', function(done) {
 					var options = {
 						dsn: dsn

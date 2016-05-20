@@ -61,9 +61,13 @@ module.exports = function(options, callback) {
 	options.indent = options.indent || '\t';
 
 	function camelize(name) {
-		return !options.camelize ? name : name.replace(/_(.)/g, function(all, c) {
+		return name.replace(/_(.)/g, function(all, c) {
 			return c.toUpperCase();
 		});
+	}
+
+	function tryCamelize(name) {
+		return !options.camelize ? name : camelize(name);
 	}
 
 	function runQuery(query, callback) {
@@ -194,7 +198,8 @@ module.exports = function(options, callback) {
 			end: null,
 			elapsed: null,
 			written: 0,
-			buffer: ''
+			buffer: '',
+			tables: {}
 		},
 		db = require(options.dialect),
 		columns,
@@ -387,6 +392,9 @@ module.exports = function(options, callback) {
 				//indent everything by one if modularize is set
 				indent = options.modularize ? options.indent : '';
 			log('info', 'Starting ' + options.database + '.' + (options.schema ? options.schema + '.' : '') + tableName + '...');
+			stats.tables[tableName] = {
+				columns: []
+			};
 			getListOfColumns(tableName, function(err, columnData) {
 				if (err) {
 					next(err);
@@ -404,7 +412,7 @@ module.exports = function(options, callback) {
 					args.push(indent + ' */');
 				}
 
-				args.push(indent + 'exports.' + camelize(tableName) + ' = sql.define({');
+				args.push(indent + 'exports.' + tryCamelize(tableName) + ' = sql.define({');
 				args.push(indent + options.indent + 'name: \'' + tableName + '\',');
 				if (options.includeSchema) {
 					args.push(indent + options.indent + 'schema: \'' + (options.schema || options.database) + '\',');
@@ -414,12 +422,17 @@ module.exports = function(options, callback) {
 				args.push(columnData.map(function(column) {
 					var columnString = indent + options.indent + options.indent + '{ ' +
 						'name: \'' + column.name + '\'';
+					var camelized = camelize(column.name);
 
 					if (options.camelize) {
-						columnString += ', property: \'' + camelize(column.name) + '\'';
+						columnString += ', property: \'' + camelized + '\'';
 					}
 					columnString += ' }';
 
+					stats.tables[tableName].columns.push({
+						name: column.name,
+						property: camelized
+					});
 					return columnString;
 				}).join(',' + options.eol));
 
