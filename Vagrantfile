@@ -10,7 +10,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.define "linux" do |linux|
     linux.vm.box = "ubuntu-1204-amd64"
-	  linux.vm.box_url = "http://files.vagrantup.com/precise64.box"
+    linux.vm.box_url = "http://files.vagrantup.com/precise64.box"
     linux.vm.hostname = "node-sql-generate"
     linux.vm.network :forwarded_port, guest: 3306, host: 33061
     linux.vm.network :forwarded_port, guest: 5432, host: 54320
