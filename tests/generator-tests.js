@@ -222,15 +222,15 @@ describe('generator', function() {
 						stats.tables.should.have.property('foo');
 						stats.tables.foo.should.have.property('columns');
 						stats.tables.foo.columns.should.eql([
-							{ name: 'id', property: 'id' },
-							{ name: 'field_1', property: 'field1' },
-							{ name: 'foo_bar_baz', property: 'fooBarBaz' }
+							{ name: 'id', property: 'id', type: 'int', charLength: null, nullable: false },
+							{ name: 'field_1', property: 'field1', type: 'varchar', charLength: 30, nullable: true },
+							{ name: 'foo_bar_baz', property: 'fooBarBaz', type: 'char', charLength: 255, nullable: true }
 						]);
 						stats.tables.should.have.property('bar');
 						stats.tables.bar.should.have.property('columns');
 						stats.tables.bar.columns.should.eql([
-							{ name: 'id', property: 'id' },
-							{ name: 'foo_id', property: 'fooId' }
+							{ name: 'id', property: 'id', type: 'int', charLength: null, nullable: false },
+							{ name: 'foo_id', property: 'fooId', type: 'int', charLength: null, nullable: false }
 						]);
 						done();
 					});

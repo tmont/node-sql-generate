@@ -457,7 +457,10 @@ module.exports = function(options, callback) {
 
 					stats.tables[tableName].columns.push({
 						name: column.name,
-						property: camelized
+						property: camelized,
+						type: column.type,
+						nullable: column.nullable,
+						charLength: column.charLength
 					});
 					return columnString;
 				}).join(',' + options.eol));
