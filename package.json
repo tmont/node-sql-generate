@@ -8,6 +8,7 @@
 		"generate"
 	],
 	"author": "Tommy Montgomery <tmont@tmont.com> (http://tmont.com/)",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/tmont/node-sql-generate.git"
