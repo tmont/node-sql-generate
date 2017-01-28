@@ -152,7 +152,7 @@ module.exports = function(options, callback) {
 				} else {
 					return row.name;
 				}
-			}).filter(r => r !== undefined));
+			}).filter(function(r) { return r !== undefined; }));
 		});
 	}
 
