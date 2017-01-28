@@ -48,7 +48,7 @@ module.exports = function(options, callback) {
 			options.dialect = 'pg';
 		}
 	}
-	
+
 	options.dialect = options.dialect.toLowerCase();
 
 	if (!supportedDialects[options.dialect]) {
@@ -146,8 +146,13 @@ module.exports = function(options, callback) {
 				return;
 			}
 			callback(null, rows.map(function(row) {
-				return row.name;
-			}));
+				// don't return excluded tables
+                                if (options.excludeRegex && !options.excludeRegex.every(function(re) { return row.name.match(re) === null; })) {
+					return undefined;
+				} else {
+					return row.name;
+				}
+			}).filter(function(r) { return r !== undefined; }));
 		});
 	}
 
@@ -180,7 +185,7 @@ module.exports = function(options, callback) {
 		}
 
 		query = query.order(columns.ordinalPosition);
-		
+
 		runQuery(query, function(err, results) {
 			if (err) {
 				callback(err);

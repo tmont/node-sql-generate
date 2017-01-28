@@ -77,6 +77,7 @@ Omitting it will assume a schema of "public".
       -i, --indent <token>      Indentation token; defaults to a TAB character
       -D, --database <name>     Name of database to extract from
       -s, --schema <name>       Name of schema to extract from (Postgres/MSSQL only)
+      -r, --exclude-regex <list of RE's>  List of regular expressions for tables we want to skip
       --camelize                Convert underscored names to camel case, requires sql >= 0.18.0
       --eol <token>             Line terminator token; defaults to "\n"
       --mode <mode>             The permission mode of the generated file; defaults to 0644
@@ -103,7 +104,8 @@ var generateSqlDefinition = require('sql-generate'),
 	options = {
 		dsn: 'mysql://user:password@host/database',
 		omitComments: true,
-		prepend: '// (c) 2013 the raddest dude alive'
+		prepend: '// (c) 2013 the raddest dude alive',
+        excludeRegex: [ /raster_/, /geography_/, /geometry_/ ]
 	};
 
 generateSqlDefinition(options, function(err, stats) {
