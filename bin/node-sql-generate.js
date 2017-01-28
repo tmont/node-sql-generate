@@ -5,7 +5,14 @@ var program = require('commander'),
 	generate = require('../');
 
 function list(val) {
-  return val.split(',').map(re=>new RegExp(re));
+  return val.split(',').map(function(re) {
+    try {
+      return new RegExp(re);
+    } catch (e) {
+      console.error('\n  error: bad regular expression: %s\n', re);
+      process.exit(1);
+    }
+  });
 }
 
 program
