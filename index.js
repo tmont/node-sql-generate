@@ -147,7 +147,7 @@ module.exports = function(options, callback) {
 			}
 			callback(null, rows.map(function(row) {
 				// don't return excluded tables
-                                if (options.excludeRegex && !options.excludeRegex.every(re => row.name.match(re) === null)) {
+                                if (options.excludeRegex && !options.excludeRegex.every(function(re) { return row.name.match(re) === null; })) {
 					return undefined;
 				} else {
 					return row.name;
