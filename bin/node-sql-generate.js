@@ -4,6 +4,10 @@ var program = require('commander'),
 	chalk = require('chalk'),
 	generate = require('../');
 
+function list(val) {
+  return val.split(',').map(re=>new RegExp(re));
+}
+
 program
 	.version(require('../package.json').version)
 	.option('--dsn <dsn>', 'Connection string')
@@ -12,6 +16,7 @@ program
 	.option('-i, --indent <token>', 'Indentation token; defaults to a TAB character', '\t')
 	.option('-D, --database <name>', 'Name of database to extract from')
 	.option('-s, --schema <name>', 'Name of schema to extract from (Postgres/MSSQL only)')
+	.option('-r, --exclude-regex <list of RE\'s>', 'List of regular expressions for tables we want to skip', list)
 	.option('--camelize', 'Convert underscored names to camel case, requires sql >= 0.18.0', false)
 	.option('--eol <token>', 'Line terminator token; defaults to "\\n"', '\n')
 	.option('--mode <mode>', 'The permission mode of the generated file; defaults to 0644', 0644)
